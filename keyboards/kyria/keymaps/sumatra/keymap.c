@@ -15,7 +15,7 @@
  */
 #include QMK_KEYBOARD_H
 
-enum layers { _WIN = 0, _OSX, _SYMBOLS, _NUMBERS, _ADJUST };
+enum layers { _BASE = 0, _SYMBOLS, _NUMBERS, _ADJUST };
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     return update_tri_layer_state(state, _SYMBOLS, _NUMBERS, _ADJUST);
@@ -24,17 +24,22 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 // ALT TAB
 bool is_alt_tab_active = false;    // ADD this near the begining of keymap.c
 uint16_t alt_tab_timer = 0;        // we will be using them soon.
+bool is_osx = true;                // used to toggle operating system
 
 enum custom_keycodes {            // Make sure have the awesome keycode ready
   ALT_TAB = SAFE_RANGE,
+  TOGGLE_OS,
+  DESK_LT,
+  DESK_RT,
   SLEEP,
+  LOCK,
 };
 
 #define IS_SHIFT (MOD_BIT(KC_LSFT)) | MOD_BIT(kc_RSFT)
 
 // Shortcuts
 // Common
-#define X _______
+#define ___ _______
 
 // Layers
 #define NUM_SPC    LT(_NUMBERS, KC_SPC)
@@ -62,11 +67,9 @@ enum custom_keycodes {            // Make sure have the awesome keycode ready
 #define MON_LEFT   LGUI(LSFT(KC_LEFT))
 #define MON_RIGHT  LGUI(LSFT(KC_RIGHT))
 
-#define LOCK       LGUI(KC_L)
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
-[_WIN] = LAYOUT(
+[_BASE] = LAYOUT(
 //  *----------*----------*----------*----------*----------*----------*                                              *----------*----------*----------*----------*----------*----------*
       KC_TAB   , KC_Q     , KC_W     , KC_E     , KC_R     , KC_T     ,                                                KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     , KC_EQL   ,
 //  *----------*----------*----------*----------*----------*----------*                                              *----------*----------*----------*----------*----------*----------*
@@ -74,86 +77,112 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //  *----------*----------*----------*----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*----------*----------*----------*
       KC_GRV   , KC_Z     , KC_X     , KC_C     , KC_V     , KC_B     , KC_RCTL  , KC_LALT  ,    KC_RALT  , KC_RCTL  , KC_N     , CTL_M    , GUI_COMM , KC_DOT   , KC_SLSH  , KC_MINS ,
 //  *----------*----------*----------*----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*----------*----------*----------*
-                                       KC_MUTE  , KC_LSFT  , SYM_BSPC , KC_ENT   , KC_LGUI  ,    ALT_TAB  , KC_RSFT  , NUM_SPC  , KC_RSFT  , KC_MPLY
-//                                   *----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*
-    ),
-
-[_OSX] = LAYOUT(
-//  *----------*----------*----------*----------*----------*----------*                                              *----------*----------*----------*----------*----------*----------*
-      KC_TAB   , KC_Q     , KC_W     , KC_E     , KC_R     , KC_T     ,                                                KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     , KC_EQL   ,
-//  *----------*----------*----------*----------*----------*----------*                                              *----------*----------*----------*----------*----------*----------*
-      KC_ESC   , KC_A     , KC_S     , KC_E     , KC_R     , KC_T     ,                                                KC_Y     , KC_U     , KC_I     , KC_O     , KC_SCLN  , KC_QUOTE ,
-//  *----------*----------*----------*----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*----------*----------*----------*
-      KC_GRV   , KC_Z     , KC_X     , KC_C     , KC_V     , KC_B     , KC_RCTL  , KC_LALT  ,    KC_RALT  , KC_RCTL  , KC_N     , CTL_M    , GUI_COMM , KC_DOT   , KC_SLSH  , KC_MINS ,
-//  *----------*----------*----------*----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*----------*----------*----------*
-                                       KC_MPLY  , KC_LSFT  , SYM_BSPC , KC_ENT   , KC_LGUI  ,    KC_RGUI  , KC_RSFT  , NUM_SPC  , KC_RSFT  , KC_MUTE
+                                       LOCK     , KC_LSFT  , SYM_BSPC , KC_ENT   , KC_LGUI  ,    ALT_TAB  , KC_RSFT  , NUM_SPC  , KC_RSFT  , KC_MPLY
 //                                   *----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*
     ),
 
 [_SYMBOLS] = LAYOUT(
 //  *----------*----------*----------*----------*----------*----------*                                              *----------*----------*----------*----------*----------*----------*
-      X        , KC_EXLM  , KC_AT    , KC_HASH  , KC_DLR   , KC_PERC  ,                                                KC_CIRC  , KC_AMPR  , KC_ASTR  , KC_LPRN  , KC_RPRN  , KC_PLUS  ,
+      ___      , KC_EXLM  , KC_AT    , KC_HASH  , KC_DLR   , KC_PERC  ,                                                KC_CIRC  , KC_AMPR  , KC_ASTR  , KC_LPRN  , KC_RPRN  , KC_PLUS  ,
 //  *----------*----------*----------*----------*----------*----------*                                              *----------*----------*----------*----------*----------*----------*
-      X        , X        , KC_MPRV  , X        , KC_MNXT  , X        ,                                                X        , KC_LCBR  , KC_RCBR  , KC_LBRC  , KC_RBRC  , KC_PIPE  ,
+      ___      , ___      , KC_MPRV  , KC_PGUP  , KC_MNXT  , ___      ,                                                ___      , KC_LCBR  , KC_RCBR  , KC_LBRC  , KC_RBRC  , KC_PIPE  ,
 //  *----------*----------*----------*----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*----------*----------*----------*
-      X        , X        , X        , X        , X        , X        , X        , X        ,    X        , X        , X        , X        , X        , X        , X        , X        ,
+      ___      , ___      , ___      , KC_PGDN  , ___      , ___      , ___      , ___      ,    ___      , ___      , ___      , ___      , ___      , ___      , ___      , ___      ,
 //  *----------*----------*----------*----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*----------*----------*----------*
-                                       LOCK     , X        , X        , X        , X        ,    X        , X        , X        , X        , SLEEP
+                                       ___      , ___      , ___      , ___      , ___      ,    ___      , ___      , ___      , ___      , ___
 //                                   *----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*
     ),
 
 [_NUMBERS] = LAYOUT(
 //  *----------*----------*----------*----------*----------*----------*                                              *----------*----------*----------*----------*----------*----------*
-      X        , KC_1     , KC_2     , KC_3     , KC_4     , KC_5     ,                                                KC_6     , KC_7     , KC_8     , KC_9     , KC_0     , KC_EQL   ,
+      ___      , KC_1     , KC_2     , KC_3     , KC_4     , KC_5     ,                                                KC_6     , KC_7     , KC_8     , KC_9     , KC_0     , KC_EQL   ,
 //  *----------*----------*----------*----------*----------*----------*                                              *----------*----------*----------*----------*----------*----------*
-      X        , X        , GUI_LEFT , GUI_UP   , GUI_RIGHT, X        ,                                                KC_LEFT  , KC_DOWN  , KC_UP    , KC_RIGHT , X        , X        ,
+      ___      , ___      , GUI_LEFT , GUI_UP   , GUI_RIGHT, ___      ,                                                KC_LEFT  , KC_DOWN  , KC_UP    , KC_RIGHT , ___      , ___      ,
 //  *----------*----------*----------*----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*----------*----------*----------*
-      X        , X        , MON_LEFT , GUI_DOWN , MON_RIGHT, X        , X        , X        ,    X        , X        , X        , KC_PGDN  , KC_PGUP  , X        , KC_BSLS  , X        ,
+      ___      , ___      , MON_LEFT , GUI_DOWN , MON_RIGHT, ___      , ___      , ___      ,    ___      , ___      , ___      , DESK_LT  , DESK_RT  , ___      , KC_BSLS  , ___      ,
 //  *----------*----------*----------*----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*----------*----------*----------*
-                                       LOCK     , X        , X        , X        , X        ,    X        , X        , X        , X        , SLEEP
+                                       ___      , ___      , ___      , ___      , ___      ,    ___      , ___      , ___      , ___      , ___
 //                                   *----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*
     ),
 
 [_ADJUST] = LAYOUT(
 //  *----------*----------*----------*----------*----------*----------*                                              *----------*----------*----------*----------*----------*----------*
-      X        , KC_F1    , KC_F2    , KC_F3    , KC_F4    , KC_F5    ,                                                KC_F6    , KC_F7    , KC_F8    , KC_F9    , KC_F10   , X        ,
+     TOGGLE_OS , KC_F1    , KC_F2    , KC_F3    , KC_F4    , KC_F5    ,                                                KC_F6    , KC_F7    , KC_F8    , KC_F9    , KC_F10   , ___      ,
 //  *----------*----------*----------*----------*----------*----------*                                              *----------*----------*----------*----------*----------*----------*
-      X        , RGB_TOG  , RGB_SAI  , RGB_HUI  , RGB_VAI  , RGB_MOD  ,                                                X        , CTL_MINS , CTL_PLUS , KC_F11   , KC_F12   , X        ,
+      ___      , RGB_TOG  , RGB_SAI  , RGB_HUI  , RGB_VAI  , RGB_MOD  ,                                                ___      , CTL_MINS , CTL_PLUS , KC_F11   , KC_F12   , ___      ,
 //  *----------*----------*----------*----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*----------*----------*----------*
-      X        , X        , RGB_SAD  , RGB_HUD  , RGB_VAD  , RGB_RMOD , X        , X        ,    X        , X        , X        , X        , X        , X        , X        , X        ,
+      ___      , ___      , RGB_SAD  , RGB_HUD  , RGB_VAD  , RGB_RMOD , ___      , ___      ,    ___      , ___      , ___      , ___      , ___      , ___      , ___      , ___      ,
 //  *----------*----------*----------*----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*----------*----------*----------*
-                                       RESET    , X        , X        , X        , X        ,    X        , X        , X        , X        , X
+                                       RESET    , ___      , ___      , ___      , ___      ,    ___      , ___      , ___      , ___      , ___
 //                                   *----------*----------*----------*----------*----------*  *----------*----------*----------*----------*----------*
     )
 };
 
 
+
 // key processing
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  bool pressed = record->event.pressed;
+  if (is_alt_tab_active && pressed) {
+    alt_tab_timer = timer_read();
+  }
+
   switch (keycode) {               // This will do most of the grunt work with the keycodes.
-    case SLEEP:
-      if (record->event.pressed) {
-          SEND_STRING(SS_LGUI("x") SS_DELAY(100) "us" SS_TAP(X_ENT));
+    case LOCK: {
+      if (pressed) {
+          if (is_osx) {
+            uint16_t code = LCTL(LGUI(KC_LEFT));
+            tap_code16(code);
+          } else {
+            SEND_STRING(SS_LGUI("x") SS_DELAY(100) "us" SS_TAP(X_ENT));
+          }
       }
-    case ALT_TAB:
-      if (record->event.pressed) {
+      break;
+    }
+    case TOGGLE_OS: {
+      if (pressed) {
+        is_osx = !is_osx;
+      }
+      break;
+    }
+    case DESK_LT: {
+      if (pressed) {
+        uint16_t code = is_osx ? LCTL(KC_LEFT) : LGUI(LCTL(KC_LEFT));
+        tap_code16(code);
+      }
+      break;
+    }
+    case DESK_RT: {
+     if (pressed) {
+        uint16_t code = is_osx ? LCTL(KC_RIGHT) : LGUI(LCTL(KC_RIGHT));
+        tap_code16(code);
+      }
+      break;
+    }
+    case ALT_TAB: {
+      if (pressed) {
+        uint16_t alt = is_osx ? KC_LGUI : KC_LALT;
+ 
         if (!is_alt_tab_active) {
           is_alt_tab_active = true;
-          register_code(KC_LALT);
+          register_code(alt);
+          alt_tab_timer = timer_read();
         }
-        alt_tab_timer = timer_read();
         register_code(KC_TAB);
       } else {
         unregister_code(KC_TAB);
       }
       break;
+    }
   }
+
   return true;
 }
 
 void matrix_scan_user(void) {
   if (is_alt_tab_active && timer_elapsed(alt_tab_timer) > 1000) {
-    unregister_code(KC_LALT);
+    uint16_t alt = is_osx ? KC_LGUI : KC_LALT;
+    unregister_code(alt);
     is_alt_tab_active = false;
   }
 }
@@ -180,16 +209,17 @@ static void render_status(void) {
 
     // Host Keyboard Layer Status
     switch (get_highest_layer(layer_state)) {
-        case _WIN:
-            oled_write_P(PSTR("Base: Windows\n"), false);
+        case _BASE:
+            if (is_osx) {
+              oled_write_P(PSTR("Base: OSX\n"), false);
+            } else {
+              oled_write_P(PSTR("Base: Windows\n"), false);
+            }
             oled_write_P(PSTR("ENC:  MUTE - PLAY\n"), false);
             oled_write_P(PSTR("\n"), false);
             oled_write_P(PSTR("BSP/SYM - SPC/NUM\n"), false);
             oled_write_P(PSTR("CTL ALT - ALT CTL\n"), false);
             oled_write_P(PSTR("ENT GUI - ATB SFT\n"), false);
-            break;
-        case _OSX:
-            oled_write_P(PSTR("OSX\n"), false);
             break;
         case _SYMBOLS:
             oled_write_P(PSTR("1: Symbols\n"), false);
