@@ -82,7 +82,7 @@ enum layers {
 // DESK
 // ======================= +-------+--------+--------+--------+--------+--------+     +-------+--------+--------+--------+--------+--------+
 #define ___DESK_1___        _______, _______,    MV_1,    MV_2,    MV_3, _______,     CYC_LYT,   SCR_1,   SCR_2,   SCR_3, _______, _______
-#define ___DESK_2___        _______, ONE_SFT, ONE_ALT, ONE_GUI, ONE_CTL, _______,     DESK_LT, WIN_FWD, WIN_BWD, DESK_RT, _______, _______
+#define ___DESK_2___        _______, ONE_SFT, ONE_ALT, ONE_GUI, ONE_CTL, _______,     DESK_LT, WIN_FOR, WIN_BAK, DESK_RT, _______, _______
 #define ___DESK_3___        _______, _______, _______, _______, _______, _______,     _______,   TAB_R,   TAB_L, _______, _______, _______
 #define ___DESK_L_THUMBS___                            _______, _______, _______
 #define ___DESK_R_THUMBS___                                                            _______, _______, _______
@@ -95,8 +95,8 @@ enum layers {
 
 #define DESK_LT LCTL(KC_LEFT)        // Move desktop to the left
 #define DESK_RT LCTL(KC_RIGHT)       // Move desktop to the right
-#define WIN_FWD LSFT(LALT(KC_J))     // Cycle window forward
-#define WIN_BWD LSFT(LALT(KC_K))     // Cycle window backward
+#define WIN_FOR LSFT(LALT(KC_J))     // Cycle window forward
+#define WIN_BAK LSFT(LALT(KC_K))     // Cycle window backward
 #define CYC_LYT LSFT(LALT(KC_SPC))   // Cycle layout
 #define SCR_1   LSFT(LALT(KC_W))     // Select Screen 1
 #define SCR_2   LSFT(LALT(KC_E))     // Select Screen 2
