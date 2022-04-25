@@ -1,6 +1,13 @@
 #include QMK_KEYBOARD_H
 
-const uint16_t PROGMEM term_combo[] = {KC_K, KC_L, COMBO_END};
+enum custom_keycodes {
+    SCR_1 = SAFE_RANGE, // Select Screen 1
+    SCR_2,              // Select Screen 2
+    SCR_3,              // Select Screen 3
+
+};
+
+const uint16_t PROGMEM term_combo[] = {KC_I, KC_O, COMBO_END};
 const uint16_t PROGMEM tab_combo[] = {KC_D, KC_F, COMBO_END};
 const uint16_t PROGMEM esc_combo[] = {KC_S, KC_D, COMBO_END};
 
@@ -98,15 +105,12 @@ enum layers {
 #define WIN_FOR LSFT(LALT(KC_J))     // Cycle window forward
 #define WIN_BAK LSFT(LALT(KC_K))     // Cycle window backward
 #define CYC_LYT LSFT(LALT(KC_SPC))   // Cycle layout
-#define SCR_1   LSFT(LALT(KC_W))     // Select Screen 1
-#define SCR_2   LSFT(LALT(KC_E))     // Select Screen 2
-#define SCR_3   LSFT(LALT(KC_R))     // Select Screen 3
 #define TAB_L   LGUI(LALT(KC_RIGHT)) // Tab to Left
 #define TAB_R   LGUI(LALT(KC_LEFT))  // Tab to Right
 
-#define MV_1   LCTL(LSFT(LALT(KC_W))) // Select Screen 1
-#define MV_2   LCTL(LSFT(LALT(KC_E))) // Select Screen 2
-#define MV_3   LCTL(LSFT(LALT(KC_R))) // Select Screen 3
+#define MV_1   LCTL(LSFT(LALT(KC_W))) // Move Window to Screen 1
+#define MV_2   LCTL(LSFT(LALT(KC_E))) // Move Window to Screen 2
+#define MV_3   LCTL(LSFT(LALT(KC_R))) // Move Window to Screen 3
 
 // =========================================================================================================================================
 
@@ -136,3 +140,26 @@ enum layers {
 #define ___SYM_5THUMBS___   _______, _______, ___SYM_L_THUMBS___,  ___SYM_R_THUMBS___,  _______, _______
 #define ___ADJ_5THUMBS___   _______, _______, ___ADJ_L_THUMBS___,  ___ADJ_R_THUMBS___,  _______, _______
 #define ___DESK_5THUMBS___  _______, _______, ___DESK_L_THUMBS___, ___DESK_R_THUMBS___, _______, _______
+
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+    case SCR_1:
+        if (record->event.pressed) {
+            SEND_STRING(SS_LSFT(SS_LALT("ww")));
+        }
+        break;
+    case SCR_2:
+        if (record->event.pressed) {
+            SEND_STRING(SS_LSFT(SS_LALT("ee")));
+        }
+        break;
+    case SCR_3:
+        if (record->event.pressed) {
+            SEND_STRING(SS_LSFT(SS_LALT("rr")));
+        }
+        break;
+    }
+ 
+    return true;
+};
